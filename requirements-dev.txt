@@ -1,0 +1,19 @@
+-r requirements.txt
+
+# Development Tools
+ipython==8.20.0
+ipdb==0.13.13
+jupyter==1.0.0
+
+# Code Quality
+pylint==3.0.3
+bandit==1.7.6
+safety==3.0.1
+
+# Documentation
+mkdocs==1.5.3
+mkdocs-material==9.5.6
+mkdocstrings[python]==0.24.0
+
+# Load Testing
+locust==2.20.1
