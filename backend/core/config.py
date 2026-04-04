@@ -2,7 +2,7 @@
 import os
 from typing import List
 from pydantic_settings import BaseSettings
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 
 
 class Settings(BaseSettings):
@@ -29,15 +29,15 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://localhost:6379/0"
     REDIS_CACHE_TTL: int = 3600
     
-    # Security
-    SECRET_KEY: str = "change-me-in-production"
-    JWT_SECRET_KEY: str = "change-me-in-production"
+    # Security — no defaults; must be supplied via environment
+    SECRET_KEY: str
+    JWT_SECRET_KEY: str
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
-    
-    # Encryption
-    ENCRYPTION_KEY: str = "32-byte-key-change-in-production"
+
+    # Encryption — no default; must be supplied via environment
+    ENCRYPTION_KEY: str
     DATA_ENCRYPTION_ENABLED: bool = True
     
     # Regulatory Configuration
@@ -102,12 +102,30 @@ class Settings(BaseSettings):
     # Audit Trail
     AUDIT_TRAIL_ENABLED: bool = True
     AUDIT_IMMUTABILITY_CHECK: bool = True
-    
+
+    # API Authentication
+    COMPLIANCE_API_KEY: str = ""
+
     # Feature Flags
     FEATURE_ML_RISK_SCORING: bool = False
     FEATURE_STABLECOIN_MONITORING: bool = True
     FEATURE_DEFI_MONITORING: bool = False
     
+    @model_validator(mode="after")
+    def check_secret_fields(self) -> "Settings":
+        _placeholders = {
+            "change-me-in-production",
+            "32-byte-key-change-in-production",
+        }
+        for field_name in ("SECRET_KEY", "JWT_SECRET_KEY", "ENCRYPTION_KEY"):
+            value = getattr(self, field_name)
+            if value in _placeholders:
+                raise ValueError(
+                    f"{field_name} is set to a placeholder value. "
+                    "Set a real secret via environment variable before starting."
+                )
+        return self
+
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
     def parse_cors_origins(cls, v):

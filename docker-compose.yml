@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: compliance_db
       POSTGRES_USER: compliance_user
-      POSTGRES_PASSWORD: secure_password
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
     ports:
       - "5432:5432"
     volumes:
@@ -39,7 +39,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql://compliance_user:secure_password@postgres:5432/compliance_db
+      - DATABASE_URL=postgresql://compliance_user:${POSTGRES_PASSWORD}@postgres:5432/compliance_db
       - REDIS_URL=redis://redis:6379/0
       - ENVIRONMENT=development
     depends_on:
@@ -59,7 +59,7 @@ services:
       dockerfile: Dockerfile
     container_name: compliance_monitor
     environment:
-      - DATABASE_URL=postgresql://compliance_user:secure_password@postgres:5432/compliance_db
+      - DATABASE_URL=postgresql://compliance_user:${POSTGRES_PASSWORD}@postgres:5432/compliance_db
       - REDIS_URL=redis://redis:6379/0
       - ENVIRONMENT=development
       - ENABLED_JURISDICTIONS=US,EU
