@@ -49,8 +49,31 @@ services:
         condition: service_healthy
     volumes:
       - ./backend:/app/backend
+      - ./compliance_monitor:/app/compliance_monitor
       - ./logs:/app/logs
     command: uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+
+  monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: compliance_monitor
+    environment:
+      - DATABASE_URL=postgresql://compliance_user:secure_password@postgres:5432/compliance_db
+      - REDIS_URL=redis://redis:6379/0
+      - ENVIRONMENT=development
+      - ENABLED_JURISDICTIONS=US,EU
+      - DEFAULT_RISK_THRESHOLD=0.7
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app/backend
+      - ./compliance_monitor:/app/compliance_monitor
+      - ./logs:/app/logs
+    command: python run_monitor.py
 
 volumes:
   postgres_data:

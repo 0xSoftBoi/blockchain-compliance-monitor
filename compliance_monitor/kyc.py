@@ -1,6 +1,6 @@
 """KYC (Know Your Customer) verification module."""
 
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 from dataclasses import dataclass
 from datetime import datetime
 import logging

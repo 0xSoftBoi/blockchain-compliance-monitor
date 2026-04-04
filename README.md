@@ -82,15 +82,16 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 # Install dependencies
 pip install -r requirements.txt
 
-# Install database
+# Start infrastructure (postgres + redis)
 docker-compose up -d postgres redis
-
-# Initialize database
-python scripts/init_db.py
 
 # Configure environment
 cp .env.example .env
-# Edit .env with your configuration
+# Edit .env with your API keys and configuration
+
+# Initialize database
+docker-compose exec postgres psql -U compliance_user -d compliance_db -c "SELECT 1" || \
+  python scripts/init_db.py
 ```
 
 ## Quick Start
@@ -98,17 +99,19 @@ cp .env.example .env
 ### Start Compliance Monitor
 
 ```bash
-# Start all services
+# Start all services (API + monitor daemon + postgres + redis)
 docker-compose up -d
 
+# OR run services individually outside Docker:
+
 # Start monitoring daemon
-python -m compliance_monitor.daemon
+python run_monitor.py
+
+# Run a quick demo screening
+python run_monitor.py --demo
 
 # Start API server
-uvicorn compliance_monitor.api:app --host 0.0.0.0 --port 8000
-
-# Start dashboard
-cd dashboard && npm install && npm start
+uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ### Basic Usage

@@ -72,7 +72,8 @@ frontend/out/
 *.sqlite3
 
 # Logs
-logs/
+logs/*
+!logs/.gitkeep
 *.log
 
 # Secrets

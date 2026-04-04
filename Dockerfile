@@ -16,6 +16,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY backend ./backend
+COPY compliance_monitor ./compliance_monitor
+COPY run_monitor.py ./run_monitor.py
 
 # Create logs directory
 RUN mkdir -p /app/logs
